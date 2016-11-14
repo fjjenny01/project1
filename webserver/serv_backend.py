@@ -55,8 +55,8 @@ def import_b64(key):
 
 
 #open session to database.
-engine = create_engine('postgresql://jf2966:jms4e@104.196.175.120/postgres')
-conn = engine.connect()
+# engine = create_engine('postgresql://jf2966:jms4e@104.196.175.120/postgres')
+# conn = engine.connect()
 
 #in essence we should allow the user to control their private key.  However for simplicity
 #we store it in a pickle file
@@ -81,14 +81,14 @@ def create_user(username, password):
     rsakey = get_rsakey()
     (priv,pub) = export_rsakey(rsakey)
 
-    conn.execute('insert into users values (%s, False, %s, %s, %s)', username + '@securemail.com', hashdpw, salt, pub)
+    g.conn.execute('insert into users values (%s, False, %s, %s, %s)', username + '@securemail.com', hashdpw, salt, pub)
     add_email_folder(username, password, 'Inbox')
     add_email_folder(username, password, 'Sent')
     privkeys[username + '@securemail.com'] = (priv, pub)
     sync_privkeys(privkeys)
 
 def authenticate(username, password):
-    saltcur = conn.execute('select salt from users where email_address = %s', username + '@securemail.com')
+    saltcur = g.conn.execute('select salt from users where email_address = %s', username + '@securemail.com')
     salt = saltcur.first()
 
     if salt is None:
@@ -99,70 +99,72 @@ def authenticate(username, password):
     h.update(password)
     hashdpw = h.hexdigest()
 
-    authcur = conn.execute('select * from users where email_address = %s and password = %s', username + '@securemail.com', hashdpw)
+    authcur = g.conn.execute('select * from users where email_address = %s and password = %s', username + '@securemail.com', hashdpw)
+    # print 'happy'
+    # print email_address
     if authcur.first() is None:
         raise ValueError('username,password combination does not exist')
 
 def create_mailinglist(username, password, listaddress):
     authenticate(username, password)
-    conn.execute('insert into users values (%s, True, NULL, NULL, NULL)', listaddress + '@securemail.com')
+    g.conn.execute('insert into users values (%s, True, NULL, NULL, NULL)', listaddress + '@securemail.com')
 
 def add_user_to_mailinglist(username, password, listaddress, member_address):
     authenticate(username, password)
-    lmcheck = conn.execute('select * from users where email_address = %s and is_list', listaddress + '@securemail.com')
+    lmcheck = g.conn.execute('select * from users where email_address = %s and is_list', listaddress + '@securemail.com')
     if lmcheck.first() is None:
         raise ValueError('Mailing list does not exist')
-    conn.execute('insert into list_mapping values (%s, True, %s)', listaddress + '@securemail.com', member_address + '@securemail.com')
+    g.conn.execute('insert into list_mapping values (%s, True, %s)', listaddress + '@securemail.com', member_address + '@securemail.com')
 
 def get_folders(username, password):
     authenticate(username, password)
-    foldcur = conn.execute('select * from folders where email_address = %s', username + '@securemail.com')
+    foldcur = g.conn.execute('select * from folders where email_address = %s', username + '@securemail.com')
     return [(x[0], x[1], x[2]) for x in foldcur]
 
 def get_contacts_folders(username, password):
     authenticate(username, password)
-    foldcur = conn.execute('select cf.FID, f.NAME from folders as f join CONTACTS_FOLDER as cf on cf.fid = f.fid where f.email_address = %s', username + '@securemail.com')
+    foldcur = g.conn.execute('select cf.FID, f.NAME from folders as f join CONTACTS_FOLDER as cf on cf.fid = f.fid where f.email_address = %s', username + '@securemail.com')
     return [(x[0], x[1]) for x in foldcur]
 
 def get_calendar_folders(username, password):
     authenticate(username, password)
-    foldcur = conn.execute('select cf.FID, f.NAME from folders as f join CALENDAR_FOLDER as cf on cf.fid = f.fid where f.email_address = %s', username + '@securemail.com')
+    foldcur = g.conn.execute('select cf.FID, f.NAME from folders as f join CALENDAR_FOLDER as cf on cf.fid = f.fid where f.email_address = %s', username + '@securemail.com')
     return [(x[0], x[1]) for x in foldcur]
 
 def get_email_folders(username, password):
     authenticate(username, password)
-    foldcur = conn.execute('select cf.FID, f.NAME from folders as f join CALENDAR_FOLDER as cf on cf.fid = f.fid where f.email_address = %s', username + '@securemail.com')
+    foldcur = g.conn.execute('select cf.FID, f.NAME from folders as f join CALENDAR_FOLDER as cf on cf.fid = f.fid where f.email_address = %s', username + '@securemail.com')
     return [(x[0], x[1]) for x in foldcur]
 
 def add_contacts_folder(username, password, foldername):
     authenticate(username, password)
-    res = conn.execute('insert into folders (name, email_address) values (%s, %s) returning fid', foldername, username + '@securemail.com')
+    res = g.conn.execute('insert into folders (name, email_address) values (%s, %s) returning fid', foldername, username + '@securemail.com')
     fid = int(res.first()[0])
-    conn.execute('insert into contacts_folder values (%s)', fid)
+    g.conn.execute('insert into contacts_folder values (%s)', fid)
 
 def add_calendar_folder(username, password, foldername):
     authenticate(username, password)
-    res = conn.execute('insert into folders (name, email_address) values (%s, %s) returning fid', foldername, username + '@securemail.com')
+    res = g.conn.execute('insert into folders (name, email_address) values (%s, %s) returning fid', foldername, username + '@securemail.com')
     fid = int(res.first()[0])
-    conn.execute('insert into calendar_folder values (%s)', fid)
+    g.conn.execute('insert into calendar_folder values (%s)', fid)
 
 def add_email_folder(username, password, foldername):
     authenticate(username, password)
-    res = conn.execute('insert into folders (name, email_address) values (%s, %s) returning fid', foldername, username + '@securemail.com')
+    res = g.conn.execute('insert into folders (name, email_address) values (%s, %s) returning fid', foldername, username + '@securemail.com')
     fid = int(res.first()[0])
-    conn.execute('insert into email_folder values (%s)', fid)
+    g.conn.execute('insert into email_folder values (%s)', fid)
 
 def add_contact(username, password, contact_folder_fid, name, address, phone_number, email_address):
     authenticate(username, password)
-    res = conn.execute('insert into contacts (fid, phone_number, address, name, email_address) values (%s, %s, %s, %s, %s)', contacts_folder_fid, name, address, phone_number, email_address)
+    res = g.conn.execute('insert into contacts (fid, phone_number, address, name, email_address) values (%s, %s, %s, %s, %s)', contacts_folder_fid, name, address, phone_number, email_address)
 
 def add_event(username, password, event_folder_fid, begintime, endtime, title, location, repeat_freq, repeat_until):
     authenticate(username, password)
-    res = conn.execute('insert into events (fid, begintime, endtime, title, location, repeat_freq, repeat_until) values (%s, %s, %s, %s, %s, %s, %s)', event_folder_fid, begintime, endtime, title, location, repeat_freq, repeat_until)
+    res = g.conn.execute('insert into events (fid, begintime, endtime, title, location, repeat_freq, repeat_until) values (%s, %s, %s, %s, %s, %s, %s)', event_folder_fid, begintime, endtime, title, location, repeat_freq, repeat_until)
 
 def delete_folder(username, password, fid):
     authenticate(username, password)
-    conn.execute('delete from folders where fid = %s', fid)
+    g.conn.execute('delete from folders where fid = %s', fid)
 
 '''
 email list resolution
@@ -170,13 +172,13 @@ do a depth first search starting at dstusername.
 avoid duplicates and infinite loops
 '''
 def resolve_dst(alreadyseen, dstemail):
-    res = conn.execute('select is_list from users where email_address = %s', dstemail)
+    res = g.conn.execute('select is_list from users where email_address = %s', dstemail)
     islist = res.first()[0]
     if not islist:
         return [dstemail]
     else:
         alreadyseen.add(dstemail)
-        res = conn.execute('select member_address from list_mapping where email_address = %s', dstemail)
+        res = g.conn.execute('select member_address from list_mapping where email_address = %s', dstemail)
         builder = []
         for tgt in res:
             if tgt[0] not in alreadyseen:
@@ -184,7 +186,7 @@ def resolve_dst(alreadyseen, dstemail):
         return set(builder)
 
 def get_fid(useremail, foldername):
-    foldcur = conn.execute('select * from folders where email_address = %s and name = %s', useremail, foldername)
+    foldcur = g.conn.execute('select * from folders where email_address = %s and name = %s', useremail, foldername)
     return [x[0] for x in foldcur]
 
 def send_email(username, password, dstusername, text):
@@ -209,12 +211,12 @@ def send_email(username, password, dstusername, text):
             in_sent_already = True
         else:
             fid = get_fid(rcv, 'Inbox')[0]
-        conn.execute('insert into emails (fid, contents, sender, time_stamp, symmetric_key) values (%s, %s, %s, %s, %s)',
+        g.conn.execute('insert into emails (fid, contents, sender, time_stamp, symmetric_key) values (%s, %s, %s, %s, %s)',
             fid, export_b64(emsg), username + '@securemail.com', datetime.datetime.now(), symkey)
 
 def list_email_in_folder(username, password, fid):
     authenticate(username, password)
-    emails = conn.execute('select * from emails where fid = %s', fid)
+    emails = g.conn.execute('select * from emails where fid = %s', fid)
     emails_ret = []
     for em in emails:
         cipher = em[2]
@@ -236,16 +238,16 @@ def list_email_in_folder(username, password, fid):
 
 def add_participant_to_event(username, password, evid, participant_username):
     authenticate(username, password)
-    conn.execute('insert into event_participants values (%s, %s)', evid, participant + '@securemail.com')
+    g.conn.execute('insert into event_participants values (%s, %s)', evid, participant + '@securemail.com')
 
 def get_contacts_in_folder(username, password, fid):
-    cur = conn.execute('select * from contacts where fid = %s', fid)
+    cur = g.conn.execute('select * from contacts where fid = %s', fid)
     return [(x[2], x[3], x[4], x[5]) for x in cur]
 
 def get_events_in_folder(username, password, fid):
-    cur = conn.execute('select * from events where fid = %s', fid)
+    cur = g.conn.execute('select * from events where fid = %s', fid)
     return [(x[2], x[3], x[4], x[5], x[6], x[7]) for x in cur]
 
 def get_event_participants_in_event(username, password, evid):
-    cur = conn.execute('select * from event_participants where evid = %s', evid)
+    cur = g.conn.execute('select * from event_participants where evid = %s', evid)
     return [x[1] for x in cur]

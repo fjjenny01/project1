@@ -1,0 +1,45 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>Welcome to Secure Email, {{username}}</h1>
+
+<form method="POST" action="/logout">
+<input type="submit" value="logout">
+</form>
+
+<form method="POST" action="/create_email">
+<input type="submit" value="New Email">
+</form>
+
+<form method="POST" action="/create_folder">
+<input type="submit" value="New Folder">
+</form>
+
+  <div>
+    {% for n in fname %}
+    <div><button type="button">{{n}}</button></div>
+    {% endfor %}
+  </div>
+
+
+<!-- display email in certain folder -->
+  <div>
+    {% for n in data %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
+
+
+
+
+</body>
+
+
+</html>

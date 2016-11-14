@@ -1,0 +1,49 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <!-- <h1>Welcome to Secure Email, {{username}}</h1> -->
+
+
+
+
+
+
+
+<!-- <form method="POST" action="/send_new_email">
+<input type="submit" value="Send">
+</form>
+
+<form method="POST">
+<input type="submit" value="save">
+</form>
+
+<form method="POST">
+<input type="submit" value="delete">
+</form> -->
+
+
+<form method="POST">
+  <p>sender: <input type="text" name="sender" value={{username}}>@securemail.com</p>
+  <p>receiver: <input type="text" name="receiver">@securemail.com</p>
+  <textarea rows="60" cols="50" name="text">
+  ...
+  </textarea>
+  <input type="submit" style="visibility: hidden; display: none;">
+  <button formaction="/send_new_email">Send</button>
+  <button formaction="/save_email">Save</button>
+  <button formaction="/delete_email">Delete</button>
+  <!-- <input type="submit" value="Default Action"> -->
+</form>
+
+
+</body>
+
+
+</html>

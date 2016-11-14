@@ -47,7 +47,7 @@ DATABASEURI = "postgresql://jf2966:jms4e@104.196.175.120/postgres"
 #
 engine = create_engine(DATABASEURI)
 
-
+execfile('serv_backend.py')
 #
 # START SQLITE SETUP CODE
 #
@@ -73,6 +73,15 @@ engine = create_engine(DATABASEURI)
 # END SQLITE SETUP CODE
 #
 
+
+class User_info():
+  def __init__(self):
+    self.username=''
+    self.passwowd=''
+    self.login=False
+
+user=User_info()
+    
 
 
 @app.before_request
@@ -176,17 +185,8 @@ def index():
   #
   return render_template("index.html", **context)
 
-#
-# This is an example of a different path.  You can see it at
-# 
-#     localhost:8111/another
-#
-# notice that the functio name is another() rather than index()
-# the functions for each app.route needs to have different names
-#
-@app.route('/another')
-def another():
-  return render_template("anotherfile.html")
+
+
 
 
 # Example of adding new data to the database
@@ -200,21 +200,64 @@ def another():
 
 @app.route('/register', methods=['POST'])
 def register():
-  name = request.form['username']
+  username = request.form['username']
   password = request.form['password']
-  print username
-  print password
-  print 'hello'
-  create_user(username, password)
+  user.username=username
+  user.password=password
+  print user.username
+  print user.password
+  create_user(user.username, user.password)
   # cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
   # g.conn.execute(text(cmd), name1 = name, name2 = name);
   return redirect('/')
 
 
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login():
-    abort(401)
-    this_is_never_executed()
+    user.username = request.form['username']
+    user.password = request.form['password']
+    print user.username
+    print user.password
+    authenticate(user.username, user.password)
+    return redirect('/mainpage')
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    user=None
+    return redirect('/')
+    
+
+@app.route('/mainpage')
+def mainpage():
+  print 'mainpage'
+  print user.username
+  print user.password
+  folders = get_folders(user.username,user.password)
+  folder_name = [x[1] for x in folders]
+  
+  context = dict(fname = folder_name, username=user.username)
+
+  return render_template("mainpage.html", **context)
+
+
+@app.route('/create_email', methods=['POST'])
+def create_email():
+  # todo
+    context = dict(username=user.username)
+    return render_template("new_email.html", **context)
+
+
+@app.route('/send_new_email', methods=['POST'])
+def send_new_email():
+  print "SEND EMAIL"
+  dstusername=request.form['sender']
+  text=request.form['text']
+  print dstusername
+  print text
+  send_email(user.username,user.password,dstusername,text)
+  return redirect('/mainpage')
+
+
 
 
 if __name__ == "__main__":
