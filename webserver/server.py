@@ -258,6 +258,10 @@ def send_new_email():
   return redirect('/mainpage')
 
 
+@app.route('/delete_draft', methods=['POST'])
+def send_new_email():
+  print "DELETE DRAFT"
+  return redirect('/mainpage')
 
 
 if __name__ == "__main__":
