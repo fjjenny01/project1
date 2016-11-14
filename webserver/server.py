@@ -135,11 +135,11 @@ def index():
   #
   # example of a database query
   #
-  # cursor = g.conn.execute("SELECT name FROM test")
-  # names = []
-  # for result in cursor:
-  #   names.append(result['name'])  # can also be accessed using result[0]
-  # cursor.close()
+  cursor = g.conn.execute("SELECT email_address FROM users")
+  names = []
+  for result in cursor:
+    names.append(result['email_address'])  # can also be accessed using result[0]
+  cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -204,6 +204,7 @@ def register():
   password = request.form['password']
   print username
   print password
+  print 'hello'
   create_user(username, password)
   # cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
   # g.conn.execute(text(cmd), name1 = name, name2 = name);
