@@ -211,6 +211,8 @@ def send_email(username, password, dstusername, text):
             in_sent_already = True
         else:
             fid = get_fid(rcv, 'Inbox')[0]
+        print "AAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        print fid
         g.conn.execute('insert into emails (fid, contents, sender, time_stamp, symmetric_key) values (%s, %s, %s, %s, %s)',
             fid, export_b64(emsg), username + '@securemail.com', datetime.datetime.now(), symkey)
 

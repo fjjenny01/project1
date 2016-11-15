@@ -22,21 +22,33 @@
 <input type="submit" value="New Folder">
 </form>
 
-  <div>
-    {% for n in fname %}
-    <form method="POST" action=""><div><button type="button">{{n}}</button></div></form>
-    {% endfor %}
-  </div>
+
+<!-- <form method="POST" action="/create_calender_folder">
+<input type="submit" value="New Calender Folder">
+</form>
+ -->
 
 
-<!-- display email in certain folder -->
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div>
+<div style="width: 100%;">
+   <div style="float:left; width: 30%">
+    <div>
+      {% for x in folders %}
+      <div><form method="POST" action="{{ url_for('list_email', fid=x.0) }}"><input type="submit" value={{x.1}}></form></div>
+      {% endfor %}
+    </div>
 
+   </div>
+   <div style="float:left;">
+    <!-- display email in certain folder -->
+    <div>
+      {% for n in email_ret %}
+      <p>Sender/Receiver:{{n.0}} Time: {{n.1}} Content:{{n.2}}</p>
+      {% endfor %}
+    </div>
 
+   </div>
+</div>
+<div style="clear:both"></div>
 
 
 </body>

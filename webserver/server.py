@@ -79,6 +79,7 @@ class User_info():
     self.username=''
     self.passwowd=''
     self.login=False
+    self.folderDisplayed=[]
 
 user=User_info()
     
@@ -233,16 +234,20 @@ def mainpage():
   print user.username
   print user.password
   folders = get_folders(user.username,user.password)
-  folder_name = [x[1] for x in folders]
-  
-  context = dict(fname = folder_name, username=user.username)
-
-  return render_template("mainpage.html", **context)
+  email_ret = user.folderDisplayed
+  print folders
+  return render_template("mainpage.html", folders=folders, username=user.username, email_ret=email_ret)
 
 
 @app.route('/create_email', methods=['POST'])
 def create_email():
-  # todo
+    context = dict(username=user.username)
+    return render_template("new_email.html", **context)
+
+
+@app.route('/create_folder', methods=['POST'])
+def create_email_folder():
+    add_email_folder()
     context = dict(username=user.username)
     return render_template("new_email.html", **context)
 
@@ -250,7 +255,7 @@ def create_email():
 @app.route('/send_new_email', methods=['POST'])
 def send_new_email():
   print "SEND EMAIL"
-  dstusername=request.form['sender']
+  dstusername=request.form['receiver']
   text=request.form['text']
   print dstusername
   print text
@@ -259,9 +264,21 @@ def send_new_email():
 
 
 @app.route('/delete_draft', methods=['POST'])
-def send_new_email():
+def delete_draft():
   print "DELETE DRAFT"
   return redirect('/mainpage')
+
+@app.route('/list_email/<int:fid>', methods=['POST'])
+def list_email(fid):
+  print "list_email"
+  print fid
+  emails_ret=list_email_in_folder(user.username, user.password, fid)
+  user.folderDisplayed=emails_ret
+  # mainpage()
+  # context=dict(email_ret=emails_ret)
+  print user.folderDisplayed
+  return redirect('/mainpage')
+
 
 
 if __name__ == "__main__":
