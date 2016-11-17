@@ -239,7 +239,7 @@ def mainpage():
   con_folders = get_contacts_folders(user.username,user.password)
   cal_folders = get_calendar_folders(user.username,user.password)
   # evt_folder= get_events_in_folder(user.username, user.password)
-  email_ret = user.folderDisplayed
+  email_ret = user.emDisplayed
   evt_ret = user.evtDisplayed
   con_ret = user.conDisplayed
   '''TODO: show other result'''
@@ -312,12 +312,12 @@ def list_email(fid):
   print "list_email"
   print fid
   user.emDisplayed=list_email_in_folder(user.username, user.password, fid)
-  print user.folderDisplayed
+  print user.emDisplayed
   return redirect('/mainpage')
 
 @app.route('/list_contacts/<int:fid>', methods=['POST'])
 def list_contacts(fid):
-  print "list_"
+  print "list_contacts"
   print fid
   user.conDisplayed=get_contacts_in_folder(user.username, user.password, fid) 
   print user.conDisplayed
