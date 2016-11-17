@@ -79,7 +79,9 @@ class User_info():
     self.username=''
     self.passwowd=''
     self.login=False
-    self.folderDisplayed=[]
+    self.emDisplayed=[]
+    self.conDisplayed=[]
+    self.evtDisplayed=[]
 
 user=User_info()
     
@@ -233,10 +235,18 @@ def mainpage():
   print 'mainpage'
   print user.username
   print user.password
-  folders = get_folders(user.username,user.password)
+  em_folders = get_email_folders(user.username,user.password)
+  con_folders = get_contacts_folders(user.username,user.password)
+  cal_folders = get_calendar_folders(user.username,user.password)
+  # evt_folder= get_events_in_folder(user.username, user.password)
   email_ret = user.folderDisplayed
-  print folders
-  return render_template("mainpage.html", folders=folders, username=user.username, email_ret=email_ret)
+  evt_ret = user.evtDisplayed
+  con_ret = user.conDisplayed
+  '''TODO: show other result'''
+  print em_folders
+  print con_folders
+  print cal_folders
+  return render_template("mainpage.html", em_folders=em_folders,con_folders=con_folders, cal_folders=cal_folders, username=user.username, email_ret=email_ret, evt_ret=evt_ret,con_ret=con_ret)
 
 
 @app.route('/create_email', methods=['POST'])
@@ -244,12 +254,41 @@ def create_email():
     context = dict(username=user.username)
     return render_template("new_email.html", **context)
 
-
-@app.route('/create_folder', methods=['POST'])
+'''create new folders '''
+@app.route('/create_email_folder', methods=['POST'])
 def create_email_folder():
-    add_email_folder()
-    context = dict(username=user.username)
-    return render_template("new_email.html", **context)
+    fname = request.form['em_folder_name']
+    print fname
+    add_email_folder(user.username,user.password,fname)
+    return redirect('/mainpage')
+
+
+@app.route('/create_contact_folder', methods=['POST'])
+def create_contact_folder():
+    cname = request.form['con_folder_name']
+    print cname
+    add_contacts_folder(user.username,user.password,cname)
+    return redirect('/mainpage')
+
+
+@app.route('/create_calender_folder', methods=['POST'])
+def create_calender_folder():
+    cname = request.form['cal_folder_name']
+    print cname
+    add_calendar_folder(user.username,user.password,cname)
+    return redirect('/mainpage')
+
+@app.route('/create_contact', methods=['POST'])
+def create_contact():
+    # fname = request.form['em_folder_name']
+    con_folder_fid=19 #TODO
+    con_name = request.form['contact_name']
+    con_addr = request.form['contact_addr']
+    con_phone_number = request.form['contact_phone_number']
+    con_em_addr = request.form['contact_em_addr']
+    add_contact(user.username, user.password, con_folder_fid, con_name, con_addr, con_phone_number, con_em_addr)
+    return redirect('/mainpage')
+
 
 
 @app.route('/send_new_email', methods=['POST'])
@@ -272,13 +311,25 @@ def delete_draft():
 def list_email(fid):
   print "list_email"
   print fid
-  emails_ret=list_email_in_folder(user.username, user.password, fid)
-  user.folderDisplayed=emails_ret
-  # mainpage()
-  # context=dict(email_ret=emails_ret)
+  user.emDisplayed=list_email_in_folder(user.username, user.password, fid)
   print user.folderDisplayed
   return redirect('/mainpage')
 
+@app.route('/list_contacts/<int:fid>', methods=['POST'])
+def list_contacts(fid):
+  print "list_"
+  print fid
+  user.conDisplayed=get_contacts_in_folder(user.username, user.password, fid) 
+  print user.conDisplayed
+  return redirect('/mainpage')
+
+@app.route('/list_events/<int:fid>', methods=['POST'])
+def list_events(fid):
+  print "list_events"
+  print fid
+  user.evtDisplayed=get_events_in_folder(user.username, user.password, fid)
+  print user.evtDisplayed
+  return redirect('/mainpage')
 
 
 if __name__ == "__main__":

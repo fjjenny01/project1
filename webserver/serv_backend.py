@@ -133,7 +133,7 @@ def get_calendar_folders(username, password):
 
 def get_email_folders(username, password):
     authenticate(username, password)
-    foldcur = g.conn.execute('select cf.FID, f.NAME from folders as f join CALENDAR_FOLDER as cf on cf.fid = f.fid where f.email_address = %s', username + '@securemail.com')
+    foldcur = g.conn.execute('select cf.FID, f.NAME from folders as f join EMAIL_FOLDER as cf on cf.fid = f.fid where f.email_address = %s', username + '@securemail.com')
     return [(x[0], x[1]) for x in foldcur]
 
 def add_contacts_folder(username, password, foldername):
@@ -156,7 +156,7 @@ def add_email_folder(username, password, foldername):
 
 def add_contact(username, password, contact_folder_fid, name, address, phone_number, email_address):
     authenticate(username, password)
-    res = g.conn.execute('insert into contacts (fid, phone_number, address, name, email_address) values (%s, %s, %s, %s, %s)', contacts_folder_fid, name, address, phone_number, email_address)
+    res = g.conn.execute('insert into contacts (fid, phone_number, address, name, email_address) values (%s, %s, %s, %s, %s)', contact_folder_fid, phone_number, address, name, email_address)
 
 def add_event(username, password, event_folder_fid, begintime, endtime, title, location, repeat_freq, repeat_until):
     authenticate(username, password)
@@ -211,8 +211,6 @@ def send_email(username, password, dstusername, text):
             in_sent_already = True
         else:
             fid = get_fid(rcv, 'Inbox')[0]
-        print "AAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        print fid
         g.conn.execute('insert into emails (fid, contents, sender, time_stamp, symmetric_key) values (%s, %s, %s, %s, %s)',
             fid, export_b64(emsg), username + '@securemail.com', datetime.datetime.now(), symkey)
 

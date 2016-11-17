@@ -18,21 +18,43 @@
 <input type="submit" value="New Email">
 </form>
 
-<form method="POST" action="/create_folder">
+<form method="POST" action="/create_contact">
+<p>contact name: <input type="text" name="contact_name"></p>
+<p>address: <input type="text" name="contact_addr"></p>
+<p>phone #: <input type="text" name="contact_phone_number"></p>
+<p>email addr: <input type="text" name="contact_em_addr"></p>
+<input type="submit" value="New Contact">
+<!-- <p>add to: </p> -->
+<!-- <p><select name="contact_folders">
+  {% for con_folder in con_folders %}
+      <option value="{{ activity }}">{{ activity }}</option>
+  {% endfor %}
+</select></p>
+<input type="submit" value="New Contact">
+ --></form>
+
+<h3>folder operation</h3>
+<form method="POST" action="/create_email_folder">
+<p>email folder name: <input type="text" name="em_folder_name"></p>
 <input type="submit" value="New Folder">
 </form>
 
 
-<!-- <form method="POST" action="/create_calender_folder">
+<form method="POST" action="/create_calender_folder">
+<p>calendar folder name: <input type="text" name="cal_folder_name"></p>
 <input type="submit" value="New Calender Folder">
 </form>
- -->
 
+<form method="POST" action="/create_contact_folder">
+<p>contact folder name: <input type="text" name="con_folder_name"></p>
+<input type="submit" value="New Contacts Folder">
+</form>
 
+<h3>Mail</h3>
 <div style="width: 100%;">
    <div style="float:left; width: 30%">
     <div>
-      {% for x in folders %}
+      {% for x in em_folders %}
       <div><form method="POST" action="{{ url_for('list_email', fid=x.0) }}"><input type="submit" value={{x.1}}></form></div>
       {% endfor %}
     </div>
@@ -43,6 +65,51 @@
     <div>
       {% for n in email_ret %}
       <p>Sender/Receiver:{{n.0}} Time: {{n.1}} Content:{{n.2}}</p>
+      {% endfor %}
+    </div>
+
+   </div>
+</div>
+<div style="clear:both"></div>
+
+
+<h3>Contacts</h3>
+<div style="width: 100%;">
+   <div style="float:left; width: 30%">
+    <div>
+      {% for x in con_folders %}
+      <div><form method="POST" action="{{ url_for('list_contacts', fid=x.0) }}"><input type="submit" value={{x.1}}></form></div>
+      {% endfor %}
+    </div>
+
+   </div>
+   <div style="float:left;">
+    <!-- display email in certain folder -->
+    <div>
+      {% for n in con_ret %}
+      <p>name: {{n.4}} email: {{n.5}}</p>
+      {% endfor %}
+    </div>
+
+   </div>
+</div>
+<div style="clear:both"></div>
+
+<h3>Events</h3>
+<div style="width: 100%;">
+   <div style="float:left; width: 30%">
+    <div>
+      {% for x in evt_folders %}
+      <div><form method="POST" action="{{ url_for('list_events', fid=x.0) }}"><input type="submit" value={{x.1}}></form></div>
+      {% endfor %}
+    </div>
+
+   </div>
+   <div style="float:left;">
+    <!-- display email in certain folder -->
+    <div>
+      {% for n in evt_ret %}
+      <p>title:{{n.4}} location: {{n.5}}</p>
       {% endfor %}
     </div>
 
