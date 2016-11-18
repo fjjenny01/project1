@@ -20,6 +20,7 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
 from serv_backend import *
+from dateutil import parser as dparse
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -330,7 +331,46 @@ def list_events(fid):
   user.evtDisplayed=get_events_in_folder(user.username, user.password, fid)
   print user.evtDisplayed
   return redirect('/mainpage')
+  
+@app.route('/create_event', methods=['POST'])
+def create_event():
+    folder = request.form['event_folder']
+    name = request.form['event_name']
+    place = request.form['event_name']
+    begin = request.form['event_begin']
+    end = request.form['event_end']
+    participants = request.form['event_part']
+    
+    #figure out which folder
+    folders = get_calendar_folders(user.username, user.password)
+    fid = -1
+    for f in folders:
+        if f[1].encode('ascii') == folder.encode('ascii'):
+            fid = f[0]
+            break
+    begin = dparse.parse(begin)
+    end = dparse.parse(end)
+    psplit = participants.split(',')
+    evid = add_event(user.username, user.password, fid, begin, end, name, place, 0, datetime.datetime.now())
+    for p in psplit:
+        add_participant_to_event(user.username, user.password, evid, p.strip())
+    add_participant_to_event(user.username, user.password, evid, user.username)
+    
+    return redirect('/mainpage')
 
+@app.route('/create_mailinglist', methods=['POST'])
+def create_ml():
+    name = request.form['ml_name']
+    members = request.form['ml_part']
+    
+    #figure out which folder
+    create_mailinglist(user.username, user.password, name)
+    
+    psplit = members.split(',')
+    for p in psplit:
+        add_user_to_mailinglist(user.username, user.password, name, p)
+    return redirect('/mainpage')
+    
 
 if __name__ == "__main__":
   import click

@@ -32,6 +32,30 @@
 </select></p>
 <input type="submit" value="New Contact">
  --></form>
+ 
+<form method="POST" action="/create_event">
+<p>event folder: <input type="text" name="event_folder"></p>
+<p>event name: <input type="text" name="event_name"></p>
+<p>place: <input type="text" name="event_place"></p>
+<p>begin time: <input type="text" name="event_begin"></p>
+<p>end time: <input type="text" name="event_end"></p>
+<p>participant (comma separated userids): <input type="text" name="event_part"></p>
+<input type="submit" value="New Event">
+<!-- <p>add to: </p> -->
+</form>
+<form method="POST" action="/create_mailinglist">
+<p>list name: <input type="text" name="ml_name"></p>
+<p>members (comma separated userids): <input type="text" name="ml_part"></p>
+<input type="submit" value="New Mailing List">
+</form>
+
+<!-- <p><select name="contact_folders">
+  {% for con_folder in con_folders %}
+      <option value="{{ activity }}">{{ activity }}</option>
+  {% endfor %}
+</select></p>
+<input type="submit" value="New Contact">
+ --></form>
 
 <h3>folder operation</h3>
 <form method="POST" action="/create_email_folder">
@@ -100,17 +124,8 @@
 <div style="width: 100%;">
    <div style="float:left; width: 30%">
     <div>
-      {% for x in evt_folders %}
+      {% for x in cal_folders %}
       <div><form method="POST" action="{{ url_for('list_events', fid=x.0) }}"><input type="submit" value={{x.1}}></form></div>
-      {% endfor %}
-    </div>
-
-   </div>
-   <div style="float:left;">
-    <!-- display email in certain folder -->
-    <div>
-      {% for n in evt_ret %}
-      <p>title:{{n.4}} location: {{n.5}}</p>
       {% endfor %}
     </div>
 

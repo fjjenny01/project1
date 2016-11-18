@@ -160,7 +160,8 @@ def add_contact(username, password, contact_folder_fid, name, address, phone_num
 
 def add_event(username, password, event_folder_fid, begintime, endtime, title, location, repeat_freq, repeat_until):
     authenticate(username, password)
-    res = g.conn.execute('insert into events (fid, begintime, endtime, title, location, repeat_freq, repeat_until) values (%s, %s, %s, %s, %s, %s, %s)', event_folder_fid, begintime, endtime, title, location, repeat_freq, repeat_until)
+    res = g.conn.execute('insert into events (fid, begintime, endtime, title, location, repeat_freq, repeat_until) values (%s, %s, %s, %s, %s, %s, %s) returning evid', event_folder_fid, begintime, endtime, title, location, repeat_freq, repeat_until)
+    return int(res.first()[0])
 
 def delete_folder(username, password, fid):
     authenticate(username, password)
@@ -238,7 +239,7 @@ def list_email_in_folder(username, password, fid):
 
 def add_participant_to_event(username, password, evid, participant_username):
     authenticate(username, password)
-    g.conn.execute('insert into event_participants values (%s, %s)', evid, participant + '@securemail.com')
+    g.conn.execute('insert into event_participants values (%s, %s)', evid, participant_username + '@securemail.com')
 
 def get_contacts_in_folder(username, password, fid):
     cur = g.conn.execute('select * from contacts where fid = %s', fid)
@@ -246,8 +247,13 @@ def get_contacts_in_folder(username, password, fid):
 
 def get_events_in_folder(username, password, fid):
     cur = g.conn.execute('select * from events where fid = %s', fid)
-    return [(x[2], x[3], x[4], x[5], x[6], x[7]) for x in cur]
+    return [(x[0], x[2], x[3], x[4], x[5], x[6], x[7]) for x in cur]
 
 def get_event_participants_in_event(username, password, evid):
     cur = g.conn.execute('select * from event_participants where evid = %s', evid)
     return [x[1] for x in cur]
+
+def get_my_events(username, password):
+    #returns all upcoming events for me
+    cur = g.conn.execute('select ev.* from event_participants as evp join events as ev on ev.evid = evp.evid where evp.email_address = %s', username + '@securemail.com')
+    return [(x[0], x[2], x[3], x[4], x[5], x[6], x[7]) for x in cur]
