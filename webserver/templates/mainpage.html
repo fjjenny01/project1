@@ -96,7 +96,6 @@
    <div style="float:left; width: 30%">
     <div>
       {% for x in con_folders %}
-      {{x}}
       <div><form method="POST" action="{{ url_for('list_contacts', fid=x.0) }}"><input type="submit" value={{x.1}}></form></div>
       {% endfor %}
     </div>

@@ -174,6 +174,8 @@ avoid duplicates and infinite loops
 '''
 def resolve_dst(alreadyseen, dstemail):
     res = g.conn.execute('select is_list from users where email_address = %s', dstemail)
+    if res.first() == None:
+        return 
     islist = res.first()[0]
     if not islist:
         return [dstemail]
@@ -193,6 +195,8 @@ def get_fid(useremail, foldername):
 def send_email(username, password, dstusername, text):
     authenticate(username, password)
     receivers = resolve_dst(set(), dstusername + '@securemail.com')
+    if receivers== None:
+        return
     receivers = list(receivers)
     receivers = receivers + [username + '@securemail.com']
 
@@ -203,6 +207,7 @@ def send_email(username, password, dstusername, text):
 
         symkey = encrypt_aeskey_with_rsa(RSA.importKey(privkeys[rcv][1]), aeskey)
         symkey = export_b64(symkey)
+
         #get folder id for this Inbox folder of this user.
         #if we are the sender, then we must put it in our sent box
         #in sent already hack in case we are sending to ourselves in which case
@@ -212,6 +217,7 @@ def send_email(username, password, dstusername, text):
             in_sent_already = True
         else:
             fid = get_fid(rcv, 'Inbox')[0]
+        
         g.conn.execute('insert into emails (fid, contents, sender, time_stamp, symmetric_key) values (%s, %s, %s, %s, %s)',
             fid, export_b64(emsg), username + '@securemail.com', datetime.datetime.now(), symkey)
 
