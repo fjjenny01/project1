@@ -83,6 +83,7 @@ class User_info():
     self.emDisplayed=[]
     self.conDisplayed=[]
     self.evtDisplayed=[]
+    self.all_evt=[]
 
 user=User_info()
     
@@ -239,15 +240,26 @@ def mainpage():
   em_folders = get_email_folders(user.username,user.password)
   con_folders = get_contacts_folders(user.username,user.password)
   cal_folders = get_calendar_folders(user.username,user.password)
-  # evt_folder= get_events_in_folder(user.username, user.password)
+  
   email_ret = user.emDisplayed
   evt_ret = user.evtDisplayed
   con_ret = user.conDisplayed
+  all_evt = user.all_evt
+
   '''TODO: show other result'''
-  print em_folders
-  print con_folders
+  # print em_folders
+  # print con_folders
   print cal_folders
-  return render_template("mainpage.html", em_folders=em_folders,con_folders=con_folders, cal_folders=cal_folders, username=user.username, email_ret=email_ret, evt_ret=evt_ret,con_ret=con_ret)
+
+  # print email_ret
+  print evt_ret
+  # print con_ret
+  print all_evt
+
+  return render_template("mainpage.html", em_folders=em_folders,
+    con_folders=con_folders, cal_folders=cal_folders, 
+    username=user.username, email_ret=email_ret, evt_ret=evt_ret,
+    con_ret=con_ret,all_evt=all_evt)
 
 
 @app.route('/create_email', methods=['POST'])
@@ -281,7 +293,7 @@ def create_calender_folder():
 
 @app.route('/create_contact', methods=['POST'])
 def create_contact():
-    # fname = request.form['em_folder_name']
+   
     con_folder_fid=19 #TODO
     con_name = request.form['contact_name']
     con_addr = request.form['contact_addr']
@@ -289,8 +301,6 @@ def create_contact():
     con_em_addr = request.form['contact_em_addr']
     add_contact(user.username, user.password, con_folder_fid, con_name, con_addr, con_phone_number, con_em_addr)
     return redirect('/mainpage')
-
-
 
 @app.route('/send_new_email', methods=['POST'])
 def send_new_email():
@@ -330,6 +340,13 @@ def list_events(fid):
   print fid
   user.evtDisplayed=get_events_in_folder(user.username, user.password, fid)
   print user.evtDisplayed
+  return redirect('/mainpage')
+
+@app.route('/list_all_events', methods=['POST'])
+def list_all_events():
+  print "list_all_eventsLALALALA"
+  user.all_evt=get_my_events(user.username, user.password)
+  print user.all_evt
   return redirect('/mainpage')
   
 @app.route('/create_event', methods=['POST'])

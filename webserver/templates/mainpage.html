@@ -127,12 +127,26 @@
       {% for x in cal_folders %}
       <div><form method="POST" action="{{ url_for('list_events', fid=x.0) }}"><input type="submit" value={{x.1}}></form></div>
       {% endfor %}
+
+      <div><form method="POST" action="/list_all_events"><input type="submit" value=All Events></form></div>
     </div>
 
    </div>
+
+   <div>
+      {% for n in evt_ret %}
+      <p>begin time: {{n.2}} end time:{{n.3}} title: {{n.4}} location: {{n.5}} </p>
+      {% endfor %}
+    </div>
+    
 </div>
 <div style="clear:both"></div>
-
+All events:
+    <div>
+      {% for n in all_evt %}
+      <p>begin time: {{n.2}} end time:{{n.3}} title: {{n.4}} location: {{n.5}} </p>
+      {% endfor %}
+    </div>
 
 </body>
 
