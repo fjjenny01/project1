@@ -19,19 +19,13 @@
 </form>
 
 <form method="POST" action="/create_contact">
+<p>contact folder name: <input type="text" name="contact_folder"></p>
 <p>contact name: <input type="text" name="contact_name"></p>
 <p>address: <input type="text" name="contact_addr"></p>
 <p>phone #: <input type="text" name="contact_phone_number"></p>
 <p>email addr: <input type="text" name="contact_em_addr"></p>
 <input type="submit" value="New Contact">
-<!-- <p>add to: </p> -->
-<!-- <p><select name="contact_folders">
-  {% for con_folder in con_folders %}
-      <option value="{{ activity }}">{{ activity }}</option>
-  {% endfor %}
-</select></p>
-<input type="submit" value="New Contact">
- --></form>
+</form>
  
 <form method="POST" action="/create_event">
 <p>event folder: <input type="text" name="event_folder"></p>
@@ -55,7 +49,7 @@
   {% endfor %}
 </select></p>
 <input type="submit" value="New Contact">
- --></form>
+ -->
 
 <h3>folder operation</h3>
 <form method="POST" action="/create_email_folder">
@@ -112,7 +106,7 @@
     <!-- display email in certain folder -->
     <div>
       {% for n in con_ret %}
-      <p>name: {{n.4}} email: {{n.5}}</p>
+      <p>name: {{n.2}} email: {{n.3}}</p>
       {% endfor %}
     </div>
 
@@ -138,7 +132,7 @@
       <p>begin time: {{n.2}} end time:{{n.3}} title: {{n.4}} location: {{n.5}} </p>
       {% endfor %}
     </div>
-    
+
 </div>
 <div style="clear:both"></div>
 All events:

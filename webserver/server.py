@@ -190,10 +190,6 @@ def index():
   #
   return render_template("index.html", **context)
 
-
-
-
-
 # Example of adding new data to the database
 # @app.route('/add', methods=['POST'])
 # def add():
@@ -212,8 +208,6 @@ def register():
   print user.username
   print user.password
   create_user(user.username, user.password)
-  # cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-  # g.conn.execute(text(cmd), name1 = name, name2 = name);
   return redirect('/')
 
 
@@ -235,8 +229,6 @@ def logout():
 @app.route('/mainpage')
 def mainpage():
   print 'mainpage'
-  print user.username
-  print user.password
   em_folders = get_email_folders(user.username,user.password)
   con_folders = get_contacts_folders(user.username,user.password)
   cal_folders = get_calendar_folders(user.username,user.password)
@@ -245,16 +237,6 @@ def mainpage():
   evt_ret = user.evtDisplayed
   con_ret = user.conDisplayed
   all_evt = user.all_evt
-
-  '''TODO: show other result'''
-  # print em_folders
-  # print con_folders
-  print cal_folders
-
-  # print email_ret
-  print evt_ret
-  # print con_ret
-  print all_evt
 
   return render_template("mainpage.html", em_folders=em_folders,
     con_folders=con_folders, cal_folders=cal_folders, 
@@ -293,13 +275,15 @@ def create_calender_folder():
 
 @app.route('/create_contact', methods=['POST'])
 def create_contact():
-   
-    con_folder_fid=19 #TODO
+    # con_folder_fid=19 #TODO
     con_name = request.form['contact_name']
     con_addr = request.form['contact_addr']
     con_phone_number = request.form['contact_phone_number']
     con_em_addr = request.form['contact_em_addr']
-    add_contact(user.username, user.password, con_folder_fid, con_name, con_addr, con_phone_number, con_em_addr)
+    con_folder_name=request.form['contact_folder']
+    useremail = "%s@securemail.com" % user.username
+    con_fid = get_fid(useremail, con_folder_name)[0]
+    add_contact(user.username, user.password, con_fid, con_name, con_addr, con_phone_number, con_em_addr)
     return redirect('/mainpage')
 
 @app.route('/send_new_email', methods=['POST'])
@@ -307,8 +291,6 @@ def send_new_email():
   print "SEND EMAIL"
   dstusername=request.form['receiver']
   text=request.form['text']
-  print dstusername
-  print text
   send_email(user.username,user.password,dstusername,text)
   return redirect('/mainpage')
 
@@ -321,9 +303,7 @@ def delete_draft():
 @app.route('/list_email/<int:fid>', methods=['POST'])
 def list_email(fid):
   print "list_email"
-  print fid
   user.emDisplayed=list_email_in_folder(user.username, user.password, fid)
-  print user.emDisplayed
   return redirect('/mainpage')
 
 @app.route('/list_contacts/<int:fid>', methods=['POST'])
@@ -337,16 +317,13 @@ def list_contacts(fid):
 @app.route('/list_events/<int:fid>', methods=['POST'])
 def list_events(fid):
   print "list_events"
-  print fid
   user.evtDisplayed=get_events_in_folder(user.username, user.password, fid)
-  print user.evtDisplayed
   return redirect('/mainpage')
 
 @app.route('/list_all_events', methods=['POST'])
 def list_all_events():
-  print "list_all_eventsLALALALA"
+  print "list_all_events"
   user.all_evt=get_my_events(user.username, user.password)
-  print user.all_evt
   return redirect('/mainpage')
   
 @app.route('/create_event', methods=['POST'])
